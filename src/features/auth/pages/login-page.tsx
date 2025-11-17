@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -141,12 +141,6 @@ export function LoginPage() {
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
           </Button>
-          <p className="text-sm text-center text-muted-foreground">
-            ¿No tienes una cuenta?{" "}
-            <Link to="/register" className="text-primary hover:underline">
-              Regístrate
-            </Link>
-          </p>
         </CardFooter>
       </form>
     </Card>
