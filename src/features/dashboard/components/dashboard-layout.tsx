@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/auth-store'
 import { Button } from '@/components/ui/button'
-import { LayoutDashboard, Package, ArrowLeftRight, LogOut, Users } from 'lucide-react'
+import { LayoutDashboard, Package, ArrowLeftRight, LogOut, Users, KeyRound } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -67,6 +67,15 @@ export function DashboardLayout() {
               </div>
             </div>
             <div className="flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/change-password')}
+                title="Cambiar contraseña"
+              >
+                <KeyRound className="h-4 w-4 mr-2" />
+                Cambiar Contraseña
+              </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="ghost" size="sm">

@@ -1,11 +1,16 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/auth-store'
 import { useToast } from '@/components/ui/use-toast'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { UserPlus, Users, Shield, User, Ban, CheckCircle } from 'lucide-react'
+import { UserPlus, Users, Shield, User, Ban, CheckCircle, KeyRound, Eye, EyeOff } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import {
   AlertDialog,
@@ -17,6 +22,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import {
   Table,
   TableBody,
@@ -54,6 +67,35 @@ async function toggleUserActiveStatus(userId: string, currentActive: boolean) {
   if (error) throw error
 }
 
+async function updateUserPassword(targetUserId: string, newPassword: string) {
+  const { data, error } = await supabase.functions.invoke('update-password', {
+    body: {
+      targetUserId,
+      newPassword,
+      isAdminChange: true,
+    },
+  })
+
+  if (error) throw error
+  if (!data?.success) {
+    throw new Error(data?.error || 'Error al actualizar la contraseña')
+  }
+}
+
+const changePasswordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(6, 'La contraseña debe tener al menos 6 caracteres'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'],
+  })
+
+type ChangePasswordForm = z.infer<typeof changePasswordSchema>
+
 export function UsersPage() {
   const navigate = useNavigate()
   const { toast } = useToast()
@@ -61,6 +103,18 @@ export function UsersPage() {
   const queryClient = useQueryClient()
   const [toggleUserId, setToggleUserId] = useState<string | null>(null)
   const [toggleUserActive, setToggleUserActive] = useState<boolean>(true)
+  const [changePasswordUserId, setChangePasswordUserId] = useState<string | null>(null)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  const {
+    register: registerPasswordForm,
+    handleSubmit: handlePasswordSubmit,
+    formState: { errors: passwordErrors },
+    reset: resetPasswordForm,
+  } = useForm<ChangePasswordForm>({
+    resolver: zodResolver(changePasswordSchema),
+  })
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['all-users'],
@@ -89,6 +143,36 @@ export function UsersPage() {
       })
     },
   })
+
+  const changePasswordMutation = useMutation({
+    mutationFn: ({ userId, newPassword }: { userId: string; newPassword: string }) =>
+      updateUserPassword(userId, newPassword),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-users'] })
+      toast({
+        title: 'Contraseña actualizada',
+        description: 'La contraseña del usuario ha sido actualizada correctamente',
+      })
+      setChangePasswordUserId(null)
+      resetPasswordForm()
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Error al actualizar la contraseña',
+        variant: 'destructive',
+      })
+    },
+  })
+
+  const onPasswordSubmit = (data: ChangePasswordForm) => {
+    if (changePasswordUserId) {
+      changePasswordMutation.mutate({
+        userId: changePasswordUserId,
+        newPassword: data.newPassword,
+      })
+    }
+  }
 
   const handleToggleActive = (userProfile: UserProfile) => {
     // No permitir desactivar el propio usuario
@@ -235,34 +319,47 @@ export function UsersPage() {
                         })}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleToggleActive(userProfile)}
-                          disabled={
-                            userProfile.id === user?.id ||
-                            toggleMutation.isPending ||
-                            (userProfile.role === 'admin' &&
-                              users?.filter(u => u.role === 'admin' && u.active).length === 1 &&
-                              userProfile.active)
-                          }
-                          className={
-                            userProfile.active
-                              ? 'text-destructive hover:text-destructive'
-                              : 'text-green-600 hover:text-green-700'
-                          }
-                          title={
-                            userProfile.active
-                              ? 'Desactivar usuario'
-                              : 'Reactivar usuario'
-                          }
-                        >
-                          {userProfile.active ? (
-                            <Ban className="h-4 w-4" />
-                          ) : (
-                            <CheckCircle className="h-4 w-4" />
-                          )}
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setChangePasswordUserId(userProfile.id)
+                            }}
+                            disabled={changePasswordMutation.isPending}
+                            title="Cambiar contraseña"
+                          >
+                            <KeyRound className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleToggleActive(userProfile)}
+                            disabled={
+                              userProfile.id === user?.id ||
+                              toggleMutation.isPending ||
+                              (userProfile.role === 'admin' &&
+                                users?.filter(u => u.role === 'admin' && u.active).length === 1 &&
+                                userProfile.active)
+                            }
+                            className={
+                              userProfile.active
+                                ? 'text-destructive hover:text-destructive'
+                                : 'text-green-600 hover:text-green-700'
+                            }
+                            title={
+                              userProfile.active
+                                ? 'Desactivar usuario'
+                                : 'Reactivar usuario'
+                            }
+                          >
+                            {userProfile.active ? (
+                              <Ban className="h-4 w-4" />
+                            ) : (
+                              <CheckCircle className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -311,6 +408,115 @@ export function UsersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog
+        open={!!changePasswordUserId}
+        onOpenChange={(open) => {
+          if (!open) {
+            setChangePasswordUserId(null)
+            resetPasswordForm()
+          }
+        }}
+      >
+        <DialogContent>
+          <form onSubmit={handlePasswordSubmit(onPasswordSubmit)}>
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2">
+                <KeyRound className="h-5 w-5" />
+                <span>Cambiar Contraseña</span>
+              </DialogTitle>
+              <DialogDescription>
+                Establece una nueva contraseña para{' '}
+                <strong>
+                  {users?.find((u) => u.id === changePasswordUserId)?.username}
+                </strong>
+                . El usuario deberá usar esta nueva contraseña para iniciar sesión.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">Nueva Contraseña</Label>
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type={showNewPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    {...registerPasswordForm('newPassword')}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                  >
+                    {showNewPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+                {passwordErrors.newPassword && (
+                  <p className="text-sm text-destructive">
+                    {passwordErrors.newPassword.message}
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Mínimo 6 caracteres
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirmar Nueva Contraseña</Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    {...registerPasswordForm('confirmPassword')}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+                {passwordErrors.confirmPassword && (
+                  <p className="text-sm text-destructive">
+                    {passwordErrors.confirmPassword.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setChangePasswordUserId(null)
+                  resetPasswordForm()
+                }}
+                disabled={changePasswordMutation.isPending}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={changePasswordMutation.isPending}>
+                {changePasswordMutation.isPending
+                  ? 'Actualizando...'
+                  : 'Actualizar Contraseña'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

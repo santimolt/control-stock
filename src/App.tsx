@@ -6,6 +6,7 @@ import { AuthLayout } from '@/features/auth/components/auth-layout'
 import { LoginPage } from '@/features/auth/pages/login-page'
 import { AdminRegisterPage } from '@/features/auth/pages/admin-register-page'
 import { UsersPage } from '@/features/auth/pages/users-page'
+import { ChangePasswordPage } from '@/features/auth/pages/change-password-page'
 import { DashboardLayout } from '@/features/dashboard/components/dashboard-layout'
 import { DashboardPage } from '@/features/dashboard/pages/dashboard-page'
 import { ProductsPage } from '@/features/products/pages/products-page'
@@ -75,6 +76,7 @@ function App() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/movements" element={<StockMovementsPage />} />
+          <Route path="/change-password" element={<ChangePasswordPage />} />
           <Route
             path="/users"
             element={
