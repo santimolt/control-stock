@@ -111,10 +111,10 @@ export function AdminRegisterPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
           Gestión de Usuarios
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-sm sm:text-base text-muted-foreground">
           Crea y administra cuentas de usuario para gestionar stock
         </p>
       </div>
@@ -123,10 +123,10 @@ export function AdminRegisterPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center space-x-2">
-              <UserPlus className="h-5 w-5" />
-              <CardTitle>Crear Nuevo Usuario</CardTitle>
+              <UserPlus className="h-4 w-4 sm:h-5 sm:w-5" />
+              <CardTitle className="text-base sm:text-lg">Crear Nuevo Usuario</CardTitle>
             </div>
-            <CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
               Completa el formulario para crear una nueva cuenta de usuario. El
               usuario podrá gestionar su propio inventario.
             </CardDescription>
@@ -134,7 +134,7 @@ export function AdminRegisterPage() {
           <form onSubmit={handleSubmit(onSubmit)}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Usuario</Label>
+                <Label htmlFor="username" className="text-sm">Usuario</Label>
                 <Input
                   id="username"
                   type="text"
@@ -142,7 +142,7 @@ export function AdminRegisterPage() {
                   {...register("username")}
                 />
                 {errors.username && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs sm:text-sm text-destructive">
                     {errors.username.message}
                   </p>
                 )}
@@ -152,7 +152,7 @@ export function AdminRegisterPage() {
                 </p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Contraseña</Label>
+                <Label htmlFor="password" className="text-sm">Contraseña</Label>
                 <Input
                   id="password"
                   type="password"
@@ -160,13 +160,13 @@ export function AdminRegisterPage() {
                   {...register("password")}
                 />
                 {errors.password && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs sm:text-sm text-destructive">
                     {errors.password.message}
                   </p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+                <Label htmlFor="confirmPassword" className="text-sm">Confirmar Contraseña</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
@@ -174,13 +174,13 @@ export function AdminRegisterPage() {
                   {...register("confirmPassword")}
                 />
                 {errors.confirmPassword && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs sm:text-sm text-destructive">
                     {errors.confirmPassword.message}
                   </p>
                 )}
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
+            <CardFooter className="flex flex-col space-y-4 pt-2">
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Creando usuario..." : "Crear Usuario"}
               </Button>

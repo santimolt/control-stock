@@ -167,17 +167,17 @@ export function StockMovementDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-[95vw] sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Nuevo Movimiento de Stock</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-base sm:text-lg">Nuevo Movimiento de Stock</DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm">
             Registra una entrada o salida de productos
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-3 sm:gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="product_id">Producto *</Label>
+              <Label htmlFor="product_id" className="text-sm">Producto *</Label>
               <Select
                 value={selectedProductId}
                 onValueChange={(value) => setValue('product_id', value)}
@@ -194,14 +194,14 @@ export function StockMovementDialog({
                 </SelectContent>
               </Select>
               {errors.product_id && (
-                <p className="text-sm text-destructive">
+                <p className="text-xs sm:text-sm text-destructive">
                   {errors.product_id.message}
                 </p>
               )}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="type">Tipo de Movimiento *</Label>
+              <Label htmlFor="type" className="text-sm">Tipo de Movimiento *</Label>
               <Select
                 value={movementType}
                 onValueChange={(value: 'entry' | 'exit') =>
@@ -217,17 +217,17 @@ export function StockMovementDialog({
                 </SelectContent>
               </Select>
               {errors.type && (
-                <p className="text-sm text-destructive">{errors.type.message}</p>
+                <p className="text-xs sm:text-sm text-destructive">{errors.type.message}</p>
               )}
               {movementType === 'exit' && selectedProduct && (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   Stock disponible: {selectedProduct.current_stock}
                 </p>
               )}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="quantity">Cantidad *</Label>
+              <Label htmlFor="quantity" className="text-sm">Cantidad *</Label>
               <Input
                 id="quantity"
                 type="number"
@@ -235,19 +235,19 @@ export function StockMovementDialog({
                 {...register('quantity')}
               />
               {errors.quantity && (
-                <p className="text-sm text-destructive">
+                <p className="text-xs sm:text-sm text-destructive">
                   {errors.quantity.message}
                 </p>
               )}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="reason">Motivo</Label>
+              <Label htmlFor="reason" className="text-sm">Motivo</Label>
               <Input id="reason" {...register('reason')} />
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="notes">Notas</Label>
+              <Label htmlFor="notes" className="text-sm">Notas</Label>
               <Textarea
                 id="notes"
                 {...register('notes')}
@@ -256,16 +256,17 @@ export function StockMovementDialog({
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
             <Button
               type="button"
               variant="outline"
+              className="w-full sm:w-auto"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" className="w-full sm:w-auto" disabled={isLoading}>
               {isLoading ? 'Registrando...' : 'Registrar Movimiento'}
             </Button>
           </DialogFooter>

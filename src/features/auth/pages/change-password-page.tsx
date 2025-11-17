@@ -107,10 +107,10 @@ export function ChangePasswordPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
           Cambiar Contraseña
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-sm sm:text-base text-muted-foreground">
           Actualiza tu contraseña para mantener tu cuenta segura
         </p>
       </div>
@@ -119,22 +119,23 @@ export function ChangePasswordPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center space-x-2">
-              <KeyRound className="h-5 w-5" />
-              <CardTitle>Cambiar Contraseña</CardTitle>
+              <KeyRound className="h-4 w-4 sm:h-5 sm:w-5" />
+              <CardTitle className="text-base sm:text-lg">Cambiar Contraseña</CardTitle>
             </div>
-            <CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
               Ingresa tu contraseña actual y elige una nueva contraseña segura
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit(onSubmit)}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="currentPassword">Contraseña Actual</Label>
+                <Label htmlFor="currentPassword" className="text-sm">Contraseña Actual</Label>
                 <div className="relative">
                   <Input
                     id="currentPassword"
                     type={showCurrentPassword ? "text" : "password"}
                     placeholder="••••••••"
+                    className="pr-10"
                     {...register("currentPassword")}
                   />
                   <Button
@@ -152,18 +153,19 @@ export function ChangePasswordPage() {
                   </Button>
                 </div>
                 {errors.currentPassword && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs sm:text-sm text-destructive">
                     {errors.currentPassword.message}
                   </p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="newPassword">Nueva Contraseña</Label>
+                <Label htmlFor="newPassword" className="text-sm">Nueva Contraseña</Label>
                 <div className="relative">
                   <Input
                     id="newPassword"
                     type={showNewPassword ? "text" : "password"}
                     placeholder="••••••••"
+                    className="pr-10"
                     {...register("newPassword")}
                   />
                   <Button
@@ -181,7 +183,7 @@ export function ChangePasswordPage() {
                   </Button>
                 </div>
                 {errors.newPassword && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs sm:text-sm text-destructive">
                     {errors.newPassword.message}
                   </p>
                 )}
@@ -190,12 +192,13 @@ export function ChangePasswordPage() {
                 </p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmar Nueva Contraseña</Label>
+                <Label htmlFor="confirmPassword" className="text-sm">Confirmar Nueva Contraseña</Label>
                 <div className="relative">
                   <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="••••••••"
+                    className="pr-10"
                     {...register("confirmPassword")}
                   />
                   <Button
@@ -213,13 +216,13 @@ export function ChangePasswordPage() {
                   </Button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs sm:text-sm text-destructive">
                     {errors.confirmPassword.message}
                   </p>
                 )}
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
+            <CardFooter className="flex flex-col space-y-4 pt-2">
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Actualizando contraseña..." : "Actualizar Contraseña"}
               </Button>

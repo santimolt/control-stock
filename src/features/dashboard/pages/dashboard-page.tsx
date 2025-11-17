@@ -51,15 +51,15 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h2>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Resumen general de tu inventario
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Productos</CardTitle>
@@ -86,7 +86,7 @@ export function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="sm:col-span-2 lg:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Stock Bajo</CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
@@ -102,8 +102,8 @@ export function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Movimientos Recientes</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-lg sm:text-xl">Movimientos Recientes</CardTitle>
+          <CardDescription className="text-sm">
             Últimos 10 movimientos de stock
           </CardDescription>
         </CardHeader>
@@ -113,29 +113,33 @@ export function DashboardPage() {
               No hay movimientos recientes
             </p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {stats?.recentMovements.map((movement) => (
                 <div
                   key={movement.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-3 sm:p-4 border rounded-lg"
                 >
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-3 sm:space-x-4">
                     {movement.type === 'entry' ? (
-                      <TrendingUp className="h-5 w-5 text-green-500" />
+                      <div className="flex-shrink-0 p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
+                        <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
+                      </div>
                     ) : (
-                      <TrendingDown className="h-5 w-5 text-red-500" />
+                      <div className="flex-shrink-0 p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <TrendingDown className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 dark:text-red-400" />
+                      </div>
                     )}
-                    <div>
-                      <p className="font-medium">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm sm:text-base">
                         {movement.type === 'entry' ? 'Entrada' : 'Salida'}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         Cantidad: {movement.quantity}
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-muted-foreground">
+                  <div className="text-left sm:text-right ml-11 sm:ml-0">
+                    <p className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
                       {new Date(movement.created_at).toLocaleDateString('es-ES', {
                         day: '2-digit',
                         month: '2-digit',

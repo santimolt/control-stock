@@ -230,25 +230,25 @@ export function UsersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Gestión de Usuarios</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Gestión de Usuarios</h2>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Administra todos los usuarios del sistema
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle className="flex items-center space-x-2">
-                <Users className="h-5 w-5" />
+              <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span>Lista de Usuarios</span>
               </CardTitle>
-              <CardDescription>
-                Total de usuarios: {users?.length || 0} | Activos: {users?.filter(u => u.active).length || 0} | Inactivos: {users?.filter(u => !u.active).length || 0}
+              <CardDescription className="text-xs sm:text-sm mt-1">
+                Total: {users?.length || 0} | Activos: {users?.filter(u => u.active).length || 0} | Inactivos: {users?.filter(u => !u.active).length || 0}
               </CardDescription>
             </div>
-            <Button onClick={() => navigate('/users/register')}>
+            <Button onClick={() => navigate('/users/register')} className="w-full sm:w-auto">
               <UserPlus className="h-4 w-4 mr-2" />
               Nuevo Usuario
             </Button>
@@ -257,83 +257,186 @@ export function UsersPage() {
         <CardContent>
           {!users || users.length === 0 ? (
             <div className="text-center py-8">
-              <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No hay usuarios registrados</p>
+              <Users className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-sm sm:text-base text-muted-foreground">No hay usuarios registrados</p>
             </div>
           ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Usuario</TableHead>
-                    <TableHead>Rol</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead>Fecha de Creación</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((userProfile) => (
-                    <TableRow key={userProfile.id}>
-                      <TableCell className="font-medium">
-                        {userProfile.username}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={userProfile.role === 'admin' ? 'default' : 'secondary'}
-                          className="flex items-center space-x-1 w-fit"
-                        >
-                          {userProfile.role === 'admin' ? (
-                            <Shield className="h-3 w-3" />
-                          ) : (
-                            <User className="h-3 w-3" />
-                          )}
-                          <span className="capitalize">{userProfile.role}</span>
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={userProfile.active ? 'default' : 'secondary'}
-                          className="flex items-center space-x-1 w-fit"
-                        >
-                          {userProfile.active ? (
-                            <>
-                              <CheckCircle className="h-3 w-3" />
-                              <span>Activo</span>
-                            </>
-                          ) : (
-                            <>
-                              <Ban className="h-3 w-3" />
-                              <span>Inactivo</span>
-                            </>
-                          )}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(userProfile.created_at).toLocaleDateString('es-ES', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden lg:block rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Usuario</TableHead>
+                      <TableHead>Rol</TableHead>
+                      <TableHead>Estado</TableHead>
+                      <TableHead>Fecha de Creación</TableHead>
+                      <TableHead className="text-right">Acciones</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((userProfile) => (
+                      <TableRow key={userProfile.id}>
+                        <TableCell className="font-medium">
+                          {userProfile.username}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={userProfile.role === 'admin' ? 'default' : 'secondary'}
+                            className="flex items-center space-x-1 w-fit"
+                          >
+                            {userProfile.role === 'admin' ? (
+                              <Shield className="h-3 w-3" />
+                            ) : (
+                              <User className="h-3 w-3" />
+                            )}
+                            <span className="capitalize">{userProfile.role}</span>
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={userProfile.active ? 'default' : 'secondary'}
+                            className="flex items-center space-x-1 w-fit"
+                          >
+                            {userProfile.active ? (
+                              <>
+                                <CheckCircle className="h-3 w-3" />
+                                <span>Activo</span>
+                              </>
+                            ) : (
+                              <>
+                                <Ban className="h-3 w-3" />
+                                <span>Inactivo</span>
+                              </>
+                            )}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(userProfile.created_at).toLocaleDateString('es-ES', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setChangePasswordUserId(userProfile.id)
+                              }}
+                              disabled={changePasswordMutation.isPending}
+                              title="Cambiar contraseña"
+                            >
+                              <KeyRound className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleToggleActive(userProfile)}
+                              disabled={
+                                userProfile.id === user?.id ||
+                                toggleMutation.isPending ||
+                                (userProfile.role === 'admin' &&
+                                  users?.filter(u => u.role === 'admin' && u.active).length === 1 &&
+                                  userProfile.active)
+                              }
+                              className={
+                                userProfile.active
+                                  ? 'text-destructive hover:text-destructive'
+                                  : 'text-green-600 hover:text-green-700'
+                              }
+                              title={
+                                userProfile.active
+                                  ? 'Desactivar usuario'
+                                  : 'Reactivar usuario'
+                              }
+                            >
+                              {userProfile.active ? (
+                                <Ban className="h-4 w-4" />
+                              ) : (
+                                <CheckCircle className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile/Tablet Card View */}
+              <div className="lg:hidden space-y-3">
+                {users.map((userProfile) => (
+                  <Card key={userProfile.id} className="border-2">
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-base truncate">
+                              {userProfile.username}
+                            </h3>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              <Badge
+                                variant={userProfile.role === 'admin' ? 'default' : 'secondary'}
+                                className="flex items-center space-x-1"
+                              >
+                                {userProfile.role === 'admin' ? (
+                                  <Shield className="h-3 w-3" />
+                                ) : (
+                                  <User className="h-3 w-3" />
+                                )}
+                                <span className="capitalize text-xs">{userProfile.role}</span>
+                              </Badge>
+                              <Badge
+                                variant={userProfile.active ? 'default' : 'secondary'}
+                                className="flex items-center space-x-1"
+                              >
+                                {userProfile.active ? (
+                                  <>
+                                    <CheckCircle className="h-3 w-3" />
+                                    <span className="text-xs">Activo</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Ban className="h-3 w-3" />
+                                    <span className="text-xs">Inactivo</span>
+                                  </>
+                                )}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Creado: {new Date(userProfile.created_at).toLocaleDateString('es-ES', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </div>
+                        <div className="flex gap-2 pt-2 border-t">
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
+                            className="flex-1"
                             onClick={() => {
                               setChangePasswordUserId(userProfile.id)
                             }}
                             disabled={changePasswordMutation.isPending}
-                            title="Cambiar contraseña"
                           >
-                            <KeyRound className="h-4 w-4" />
+                            <KeyRound className="h-4 w-4 mr-2" />
+                            Cambiar Contraseña
                           </Button>
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
+                            className="flex-1"
                             onClick={() => handleToggleActive(userProfile)}
                             disabled={
                               userProfile.id === user?.id ||
@@ -342,30 +445,26 @@ export function UsersPage() {
                                 users?.filter(u => u.role === 'admin' && u.active).length === 1 &&
                                 userProfile.active)
                             }
-                            className={
-                              userProfile.active
-                                ? 'text-destructive hover:text-destructive'
-                                : 'text-green-600 hover:text-green-700'
-                            }
-                            title={
-                              userProfile.active
-                                ? 'Desactivar usuario'
-                                : 'Reactivar usuario'
-                            }
                           >
                             {userProfile.active ? (
-                              <Ban className="h-4 w-4" />
+                              <>
+                                <Ban className="h-4 w-4 mr-2 text-destructive" />
+                                Desactivar
+                              </>
                             ) : (
-                              <CheckCircle className="h-4 w-4" />
+                              <>
+                                <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                                Activar
+                              </>
                             )}
                           </Button>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
@@ -374,7 +473,7 @@ export function UsersPage() {
         open={!!toggleUserId}
         onOpenChange={(open) => !open && setToggleUserId(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle>
               {toggleUserActive ? '¿Desactivar usuario?' : '¿Reactivar usuario?'}
@@ -393,15 +492,15 @@ export function UsersPage() {
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="w-full sm:w-auto">Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmToggle}
-              className={
+              className={`w-full sm:w-auto ${
                 toggleUserActive
                   ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
                   : ''
-              }
+              }`}
             >
               {toggleUserActive ? 'Desactivar' : 'Reactivar'}
             </AlertDialogAction>
@@ -418,14 +517,14 @@ export function UsersPage() {
           }
         }}
       >
-        <DialogContent>
+        <DialogContent className="max-w-[90vw] sm:max-w-lg">
           <form onSubmit={handlePasswordSubmit(onPasswordSubmit)}>
             <DialogHeader>
-              <DialogTitle className="flex items-center space-x-2">
-                <KeyRound className="h-5 w-5" />
+              <DialogTitle className="flex items-center space-x-2 text-base sm:text-lg">
+                <KeyRound className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span>Cambiar Contraseña</span>
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-xs sm:text-sm">
                 Establece una nueva contraseña para{' '}
                 <strong>
                   {users?.find((u) => u.id === changePasswordUserId)?.username}
@@ -435,12 +534,13 @@ export function UsersPage() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="newPassword">Nueva Contraseña</Label>
+                <Label htmlFor="newPassword" className="text-sm">Nueva Contraseña</Label>
                 <div className="relative">
                   <Input
                     id="newPassword"
                     type={showNewPassword ? 'text' : 'password'}
                     placeholder="••••••••"
+                    className="pr-10"
                     {...registerPasswordForm('newPassword')}
                   />
                   <Button
@@ -458,7 +558,7 @@ export function UsersPage() {
                   </Button>
                 </div>
                 {passwordErrors.newPassword && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs sm:text-sm text-destructive">
                     {passwordErrors.newPassword.message}
                   </p>
                 )}
@@ -467,12 +567,13 @@ export function UsersPage() {
                 </p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmar Nueva Contraseña</Label>
+                <Label htmlFor="confirmPassword" className="text-sm">Confirmar Nueva Contraseña</Label>
                 <div className="relative">
                   <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
                     placeholder="••••••••"
+                    className="pr-10"
                     {...registerPasswordForm('confirmPassword')}
                   />
                   <Button
@@ -490,16 +591,17 @@ export function UsersPage() {
                   </Button>
                 </div>
                 {passwordErrors.confirmPassword && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs sm:text-sm text-destructive">
                     {passwordErrors.confirmPassword.message}
                   </p>
                 )}
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
               <Button
                 type="button"
                 variant="outline"
+                className="w-full sm:w-auto"
                 onClick={() => {
                   setChangePasswordUserId(null)
                   resetPasswordForm()
@@ -508,7 +610,7 @@ export function UsersPage() {
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={changePasswordMutation.isPending}>
+              <Button type="submit" className="w-full sm:w-auto" disabled={changePasswordMutation.isPending}>
                 {changePasswordMutation.isPending
                   ? 'Actualizando...'
                   : 'Actualizar Contraseña'}

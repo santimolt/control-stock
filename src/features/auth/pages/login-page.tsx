@@ -100,45 +100,47 @@ export function LoginPage() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Iniciar Sesión</CardTitle>
-        <CardDescription>
+      <CardHeader className="space-y-1 pb-4">
+        <CardTitle className="text-xl sm:text-2xl">Iniciar Sesión</CardTitle>
+        <CardDescription className="text-sm">
           Ingresa tus credenciales para acceder a tu cuenta
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="username">Usuario</Label>
+            <Label htmlFor="username" className="text-sm">Usuario</Label>
             <Input
               id="username"
               type="text"
               placeholder="tu_usuario"
+              className="h-10 sm:h-11"
               {...register("username")}
             />
             {errors.username && (
-              <p className="text-sm text-destructive">
+              <p className="text-xs sm:text-sm text-destructive">
                 {errors.username.message}
               </p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
+            <Label htmlFor="password" className="text-sm">Contraseña</Label>
             <Input
               id="password"
               type="password"
               placeholder="••••••••"
+              className="h-10 sm:h-11"
               {...register("password")}
             />
             {errors.password && (
-              <p className="text-sm text-destructive">
+              <p className="text-xs sm:text-sm text-destructive">
                 {errors.password.message}
               </p>
             )}
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <Button type="submit" className="w-full" disabled={loading}>
+        <CardFooter className="flex flex-col space-y-4 pt-2">
+          <Button type="submit" className="w-full h-10 sm:h-11" disabled={loading}>
             {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
           </Button>
         </CardFooter>
