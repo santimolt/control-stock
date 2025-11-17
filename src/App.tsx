@@ -13,7 +13,7 @@ import { ProductsPage } from '@/features/products/pages/products-page'
 import { StockMovementsPage } from '@/features/stock-movements/pages/stock-movements-page'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuthStore()
+  const { user, loading, isValidSession, isActive } = useAuthStore()
 
   if (loading) {
     return (
@@ -23,7 +23,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (!user) {
+  // Verificar que haya usuario, sesión válida y perfil activo
+  if (!user || !isValidSession() || !isActive()) {
     return <Navigate to="/login" replace />
   }
 
@@ -31,7 +32,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading, isAdmin } = useAuthStore()
+  const { user, loading, isValidSession, isActive, isAdmin } = useAuthStore()
 
   if (loading) {
     return (
@@ -41,7 +42,8 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (!user) {
+  // Verificar que haya usuario, sesión válida y perfil activo
+  if (!user || !isValidSession() || !isActive()) {
     return <Navigate to="/login" replace />
   }
 
