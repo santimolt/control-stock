@@ -10,6 +10,6 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  base: '/control-stock/',
+  base: '/Control-de-stock/',
 })
 
