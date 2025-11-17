@@ -45,7 +45,7 @@ async function fetchAllUsers() {
   return data as UserProfile[]
 }
 
-async function toggleUserActive(userId: string, currentActive: boolean) {
+async function toggleUserActiveStatus(userId: string, currentActive: boolean) {
   const { error } = await supabase
     .from('user_profiles')
     .update({ active: !currentActive })
@@ -70,7 +70,7 @@ export function UsersPage() {
 
   const toggleMutation = useMutation({
     mutationFn: ({ userId, currentActive }: { userId: string; currentActive: boolean }) =>
-      toggleUserActive(userId, currentActive),
+      toggleUserActiveStatus(userId, currentActive),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['all-users'] })
       toast({
