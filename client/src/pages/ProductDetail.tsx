@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Product } from '@/types/product';
 import { ProductForm } from '@/components/products/ProductForm';
+import { PhotoGallery } from '@/components/products/PhotoGallery';
+import { PhotoUpload } from '@/components/products/PhotoUpload';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import * as db from '@/lib/db';
+import { usePhotos } from '@/hooks/usePhotos';
 import { getStockStatusColor, getStockStatusLabel } from '@/lib/utils/stock-checks';
 
 export function ProductDetail() {
@@ -13,6 +16,15 @@ export function ProductDetail() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+  
+  // Photo management
+  const {
+    photos,
+    loading: photosLoading,
+    uploadProgress,
+    addPhotos,
+    deletePhoto,
+  } = usePhotos(id);
 
   useEffect(() => {
     async function loadProduct() {
@@ -80,7 +92,7 @@ export function ProductDetail() {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between">
         <Link to="/products">
           <Button variant="outline">← Volver</Button>
@@ -94,6 +106,25 @@ export function ProductDetail() {
           </Button>
         </div>
       </div>
+
+      {/* Photo Gallery Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Fotos del Producto</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <PhotoUpload 
+            onUpload={addPhotos}
+            uploading={uploadProgress !== null}
+            uploadProgress={uploadProgress}
+          />
+          <PhotoGallery 
+            photos={photos}
+            onDelete={deletePhoto}
+            loading={photosLoading}
+          />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -132,6 +163,10 @@ export function ProductDetail() {
               <div>
                 <p className="text-muted-foreground">Última actualización</p>
                 <p>{new Date(product.updatedAt).toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Fotos</p>
+                <p>{photos.length} {photos.length === 1 ? 'foto' : 'fotos'}</p>
               </div>
             </div>
           </div>

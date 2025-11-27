@@ -1,6 +1,6 @@
 # Control de Stock - Aplicación Offline-First
 
-![Status](https://img.shields.io/badge/status-Fase%201%20Completada-success)
+![Status](https://img.shields.io/badge/status-Fase%202%20Completada-success)
 ![React](https://img.shields.io/badge/React-19-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
 
@@ -8,8 +8,9 @@ Aplicación PWA para control de stock familiar, construida con React 19, TypeScr
 
 > **Nota:** Este es un proyecto personal desarrollado para uso familiar. Todos los datos se almacenan localmente en tu navegador y nunca se envían a servidores externos.
 
-## ✨ Características Implementadas (Fase 1)
+## ✨ Características Implementadas
 
+### Fase 1
 - ✅ **CRUD Completo**: Crear, leer, actualizar y eliminar productos
 - ✅ **100% Offline**: Funciona completamente sin conexión usando IndexedDB
 - ✅ **PWA Instalable**: Puede instalarse como app nativa en móviles y desktop
@@ -20,6 +21,16 @@ Aplicación PWA para control de stock familiar, construida con React 19, TypeScr
 - ✅ **Búsqueda**: Filtra productos en tiempo real
 - ✅ **Dashboard**: Estadísticas y vista general del inventario
 - ✅ **Service Worker**: Caching automático para funcionamiento offline
+
+### Fase 2
+- ✅ **Gestión de Fotos**: Sube múltiples fotos por producto
+- ✅ **Drag & Drop**: Arrastra imágenes directamente o selecciona desde el explorador
+- ✅ **Compresión Automática**: Reduce el tamaño de las imágenes sin perder calidad
+- ✅ **Galería con Lightbox**: Visualiza fotos en pantalla completa con navegación
+- ✅ **Thumbnails**: Miniaturas optimizadas para carga rápida
+- ✅ **Almacenamiento Local**: Fotos guardadas en IndexedDB como Blobs
+- ✅ **Validación**: Verifica tipo y tamaño de archivo antes de subir
+- ✅ **Accesibilidad**: Navegación por teclado y lectores de pantalla
 
 ## 📋 Requisitos del Sistema
 
@@ -213,12 +224,15 @@ Para agregar más:
 - PWA básico
 - UI moderna con Tailwind
 
-### 🔜 Fase 2 (Próxima)
-- [ ] Agregar campo de foto a productos
-- [ ] Compresión automática de imágenes
-- [ ] Almacenar fotos en IndexedDB como Blobs
-- [ ] Galería de fotos por producto
-- [ ] Migración automática de datos v1→v2
+### ✅ Fase 2 (Completada)
+- ✅ Agregar campo de foto a productos
+- ✅ Compresión automática de imágenes
+- ✅ Almacenar fotos en IndexedDB como Blobs
+- ✅ Galería de fotos por producto con lightbox
+- ✅ Migración automática de datos v2→v3
+- ✅ Drag-and-drop para subir imágenes
+- ✅ Soporte multi-imagen
+- ✅ Thumbnails para rendimiento óptimo
 
 ### 🔮 Fase 3 (Futura)
 - [ ] Backend Node.js + Express + PostgreSQL

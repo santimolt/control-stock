@@ -11,7 +11,7 @@ export function Layout({ children }: LayoutProps) {
       <main className="flex-1 container mx-auto px-4 py-8">
         {children}
       </main>
-      <footer className="border-t py-6 text-center text-sm text-muted-foreground">
+      <footer className="border-t py-2 text-center text-sm text-muted-foreground">
         <p>Control de Stock - App offline-first</p>
       </footer>
     </div>

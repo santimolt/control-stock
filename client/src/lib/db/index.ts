@@ -38,6 +38,16 @@ export async function initDB(): Promise<IDBPDatabase<StockDB>> {
         // They'll get default values of price=0, averageCost=0
         console.log('Database upgraded to v2 - movements store created');
       }
+      
+      // Migration v2 -> v3: Add photos store
+      if (oldVersion < 3) {
+        // Create photos store
+        const photoStore = db.createObjectStore('photos', { keyPath: 'id' });
+        photoStore.createIndex('by-product', 'productId');
+        photoStore.createIndex('by-created', 'createdAt');
+        
+        console.log('Database upgraded to v3 - photos store created');
+      }
     },
   });
 
@@ -136,9 +146,18 @@ export async function updateProduct(
 
 /**
  * Delete a product by ID
+ * Also cascade deletes all associated photos
  */
 export async function deleteProduct(id: string): Promise<void> {
   const db = await getDB();
+  
+  // Import photo deletion function dynamically to avoid circular dependencies
+  const { deletePhotosByProductId } = await import('./photos');
+  
+  // Delete all photos associated with this product
+  await deletePhotosByProductId(id);
+  
+  // Delete the product
   await db.delete('products', id);
 }
 

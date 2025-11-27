@@ -6,6 +6,7 @@ import { Movements } from '@/pages/Movements';
 import { NotFound } from '@/pages/NotFound';
 import { useDB } from '@/hooks/useDB';
 
+// App component
 function App() {
   const { isReady, error } = useDB();
 

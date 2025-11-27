@@ -7,13 +7,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
+import { PhotoUpload } from './PhotoUpload';
+import { PhotoGallery } from './PhotoGallery';
+import { usePhotos } from '@/hooks/usePhotos';
 import { formatCurrency } from '@/lib/utils/cn';
 
 interface ProductFormProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateProductInput) => Promise<void>;
+  onSubmit: (data: CreateProductInput, pendingPhotos?: File[]) => Promise<void>;
   initialData?: Partial<CreateProductInput>;
+  productId?: string; // ID for editing existing product
   title?: string;
 }
 
@@ -31,10 +35,23 @@ export function ProductForm({
   onClose,
   onSubmit,
   initialData,
+  productId,
   title = 'Agregar Producto'
 }: ProductFormProps) {
   const [formData, setFormData] = useState<CreateProductInput>(getInitialFormData(initialData));
   const [loading, setLoading] = useState(false);
+
+  // State for photos when creating a new product (before it has an ID)
+  const [pendingPhotos, setPendingPhotos] = useState<File[]>([]);
+
+  // Photo management for editing existing products
+  const {
+    photos,
+    loading: photosLoading,
+    uploadProgress,
+    addPhotos,
+    deletePhoto,
+  } = usePhotos(productId);
 
   // Initialize form when dialog opens, reset when it closes
   useEffect(() => {
@@ -44,9 +61,10 @@ export function ProductForm({
     } else {
       // Reset to empty form when closing
       setFormData(getInitialFormData());
+      setPendingPhotos([]);
     }
   }, [open, initialData]);
-  
+
   // Calculate margin for display
   const margin = formData.price > 0 && formData.initialCost !== undefined && formData.initialCost > 0
     ? calculateMargin(formData.price, formData.initialCost)
@@ -56,10 +74,12 @@ export function ProductForm({
     e.preventDefault();
     setLoading(true);
     try {
-      await onSubmit(formData);
+      // Pass pending photos for new products
+      await onSubmit(formData, !productId ? pendingPhotos : undefined);
       onClose();
       // Reset form after successful submission
       setFormData(getInitialFormData());
+      setPendingPhotos([]);
     } catch (error) {
       console.error('Error submitting form:', error);
     } finally {
@@ -69,7 +89,7 @@ export function ProductForm({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
@@ -87,7 +107,7 @@ export function ProductForm({
               required
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="quantity">Cantidad Inicial *</Label>
@@ -100,7 +120,7 @@ export function ProductForm({
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="category">Categoría *</Label>
               <Select
@@ -115,10 +135,10 @@ export function ProductForm({
               </Select>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">Precio de Venta *</Label>
+              <Label htmlFor="price">Precio de venta *</Label>
               <Input
                 id="price"
                 type="number"
@@ -130,9 +150,9 @@ export function ProductForm({
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="initialCost">Costo Inicial (opcional)</Label>
+              <Label htmlFor="initialCost">Costo inicial (opcional)</Label>
               <Input
                 id="initialCost"
                 type="number"
@@ -147,11 +167,11 @@ export function ProductForm({
               </p>
             </div>
           </div>
-          
+
           {margin !== null && (
             <div className="p-3 bg-muted rounded-md">
               <p className="text-sm">
-                <span className="font-medium">Margen inicial:</span>{' '}
+                <span className="font-medium">Margen de ganancia:</span>{' '}
                 <strong className={margin > 30 ? 'text-green-600' : margin > 15 ? 'text-yellow-600' : 'text-red-600'}>
                   {margin.toFixed(1)}%
                 </strong>
@@ -159,7 +179,7 @@ export function ProductForm({
               </p>
             </div>
           )}
-          
+
           <div className="space-y-2">
             <Label htmlFor="notes">Notas</Label>
             <Textarea
@@ -172,7 +192,52 @@ export function ProductForm({
             />
           </div>
 
-          <DialogFooter className="w-full flex justify-between gap-16">
+          {/* Photo Management */}
+          <div className="space-y-4 pt-4 border-t">
+            <div>
+              <Label>Foto del producto</Label>
+              <p className="text-xs text-muted-foreground">
+                {productId ? 'Gestiona la foto del producto (máximo 1 foto)' : 'Agrega una foto (opcional)'}
+              </p>
+            </div>
+
+            {/* Modo pending para crear producto */}
+            {!productId && (
+              <PhotoUpload
+                mode="pending"
+                onFilesChange={setPendingPhotos}
+                initialFiles={pendingPhotos}
+                multiple={false}
+              />
+            )}
+
+            {/* Modo upload automático para editar producto */}
+            {productId && (
+              <>
+                <PhotoUpload
+                  mode="upload"
+                  onUpload={async (files) => {
+                    // Si ya hay una foto, eliminar la anterior antes de subir la nueva
+                    if (photos.length > 0 && files.length > 0) {
+                      await deletePhoto(photos[0].id);
+                    }
+                    await addPhotos(files);
+                  }}
+                  uploading={uploadProgress !== null}
+                  uploadProgress={uploadProgress}
+                  multiple={false}
+                />
+
+                <PhotoGallery
+                  photos={photos}
+                  onDelete={deletePhoto}
+                  loading={photosLoading}
+                />
+              </>
+            )}
+          </div>
+
+          <DialogFooter className="">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancelar
             </Button>

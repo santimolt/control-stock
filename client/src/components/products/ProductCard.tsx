@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import type { Product } from "@/types/product";
 import {
   Card,
@@ -9,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils/cn";
 import { getStockStatusColor } from "@/lib/utils/stock-checks";
+import { getPhotosByProductId, createPhotoURL } from "@/lib/db/photos";
 
 interface ProductCardProps {
   product: Product;
@@ -23,6 +25,34 @@ export function ProductCard({
   onEdit,
   onRegisterMovement,
 }: ProductCardProps) {
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+
+  // Load first photo for product
+  useEffect(() => {
+    let url: string | null = null;
+    
+    async function loadPhoto() {
+      try {
+        const photos = await getPhotosByProductId(product.id);
+        if (photos.length > 0) {
+          url = createPhotoURL(photos[0], true); // Use thumbnail
+          setPhotoUrl(url);
+        }
+      } catch (error) {
+        console.error('Error loading photo:', error);
+      }
+    }
+
+    loadPhoto();
+
+    // Cleanup
+    return () => {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    };
+  }, [product.id]);
+
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm(`¿Estás seguro de eliminar "${product.name}"?`)) {
@@ -42,6 +72,21 @@ export function ProductCard({
 
   return (
     <Card className="h-full hover:shadow-md transition-shadow flex flex-col">
+      {/* Product Photo */}
+      {photoUrl ? (
+        <div className="w-full h-64 overflow-hidden rounded-t-lg">
+          <img
+            src={photoUrl}
+            alt={product.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      ) : (
+        <div className="w-full h-64 bg-gray-100 rounded-t-lg flex items-center justify-center">
+          <span className="text-sm text-muted-foreground">No hay imagen disponible</span>
+        </div>
+      )}
+      
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-col gap-2">
@@ -62,7 +107,7 @@ export function ProductCard({
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Precio de Venta:</span>{" "}
+            <span className="text-sm font-medium">Precio de venta:</span>{" "}
             <span className="text-sm font-bold">
               {formatCurrency(product.price)}
             </span>
@@ -76,7 +121,7 @@ export function ProductCard({
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Margen de Ganancia:</span>{" "}
+            <span className="text-sm font-medium">Margen de ganancia:</span>{" "}
             <span className="text-sm font-bold">
               {product.averageCost
                 ? formatCurrency(product.price - product.averageCost)
@@ -84,7 +129,7 @@ export function ProductCard({
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Última Actualización:</span>{" "}
+            <span className="text-sm font-medium">Última actualización:</span>{" "}
             <span className="text-xs text-muted-foreground self-start">
               {new Date(product.updatedAt).toLocaleDateString()}
             </span>

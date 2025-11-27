@@ -41,7 +41,7 @@ const Dialog: React.FC<DialogProps> = ({ open, children }) => {
   return (
     <dialog
       ref={dialogRef}
-      className="backdrop:bg-black/80 backdrop:backdrop-blur-sm bg-transparent border-none p-0 rounded-lg max-w-[95vw] max-h-[95vh] overflow-visible"
+      className="backdrop:bg-black/80 backdrop:backdrop-blur-sm bg-transparent border-none p-0 rounded-lg max-w-[95vw] max-h-[95vh] min-w-[50vw] overflow-visible"
     >
       {children}
     </dialog>
@@ -108,7 +108,7 @@ const DialogFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col-reverse sm:flex-row  sm:space-x-2", className)}
+    className={cn("w-full flex flex-col gap-2 sm:flex-row sm:justify-between sm:gap-16", className)}
     {...props}
   />
 ))

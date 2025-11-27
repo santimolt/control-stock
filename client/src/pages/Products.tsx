@@ -7,6 +7,7 @@ import { MovementForm } from '@/components/movements/MovementForm';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import type { Product, CreateProductInput } from '@/types/product';
+import { addPhotos } from '@/lib/db/photos';
 
 export function Products() {
   const { products, loading, addProduct, updateProduct, deleteProduct, refresh: refreshProducts } = useProducts();
@@ -76,29 +77,32 @@ export function Products() {
             Gestiona tu inventario de productos
           </p>
         </div>
+      </div>
+      <div className="flex justify-between gap-4">
+        {products.length > 0 && (
+          <div className="flex flex-1 items-center gap-4">
+            <Input
+              placeholder="Buscar productos..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="max-w-md w-full"
+            />
+            {searchQuery && (
+              <Button variant="outline" onClick={() => setSearchQuery('')}>
+                Limpiar
+              </Button>
+            )}
+          </div>
+        )}
         <Button onClick={() => setIsFormOpen(true)}>
           Agregar Producto
         </Button>
       </div>
 
-      {products.length > 0 && (
-        <div className="flex items-center gap-4">
-          <Input
-            placeholder="Buscar productos..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-sm"
-          />
-          {searchQuery && (
-            <Button variant="outline" onClick={() => setSearchQuery('')}>
-              Limpiar
-            </Button>
-          )}
-        </div>
-      )}
 
-      <ProductList 
-        products={filteredProducts} 
+
+      <ProductList
+        products={filteredProducts}
         onDelete={deleteProduct}
         onEdit={handleEdit}
         onRegisterMovement={handleRegisterMovement}
@@ -107,8 +111,20 @@ export function Products() {
       <ProductForm
         open={isFormOpen}
         onClose={() => setIsFormOpen(false)}
-        onSubmit={async (data) => {
-          await addProduct(data);
+        onSubmit={async (data, pendingPhotos) => {
+          const newProduct = await addProduct(data);
+
+          // Upload photos if any were selected
+          if (pendingPhotos && pendingPhotos.length > 0) {
+            try {
+              await addPhotos(newProduct.id, pendingPhotos);
+            } catch (error) {
+              console.error('Error uploading photos:', error);
+              // Product is created, photos just failed - show warning but don't fail
+            }
+          }
+
+          await refreshProducts();
         }}
       />
 
@@ -120,6 +136,7 @@ export function Products() {
         }}
         onSubmit={handleUpdateProduct}
         initialData={getEditInitialData(editingProduct)}
+        productId={editingProduct?.id}
         title="Editar Producto"
       />
 
