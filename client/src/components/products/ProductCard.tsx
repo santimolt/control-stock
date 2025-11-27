@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils/cn";
+import { getStockStatusColor } from "@/lib/utils/stock-checks";
 
 interface ProductCardProps {
   product: Product;
@@ -56,15 +57,7 @@ export function ProductCard({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Cantidad:</span>
-            <span
-              className={`text-lg font-bold ${
-                product.quantity === 0
-                  ? "text-destructive"
-                  : product.quantity < 5
-                    ? "text-yellow-600"
-                    : "text-green-600"
-              }`}
-            >
+            <span className={`text-lg font-bold ${getStockStatusColor(product.quantity)}`}>
               {product.quantity}
             </span>
           </div>

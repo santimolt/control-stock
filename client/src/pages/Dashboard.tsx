@@ -7,11 +7,11 @@ import type { Product } from '@/types/product';
 import { getFinancialSummary, getTotalInventoryValue } from '@/lib/analytics';
 import type { FinancialSummary } from '@/lib/analytics';
 import { formatCurrency } from '@/lib/utils/cn';
+import { countOutOfStock, getStockStatusColor } from '@/lib/utils/stock-checks';
 
 export function Dashboard() {
   const [stats, setStats] = useState({
     totalProducts: 0,
-    lowStock: 0,
     outOfStock: 0,
     categories: 0,
     inventoryValue: 0,
@@ -30,8 +30,7 @@ export function Dashboard() {
         
         setStats({
           totalProducts: products.length,
-          lowStock: products.filter(p => p.quantity > 0 && p.quantity < 5).length,
-          outOfStock: products.filter(p => p.quantity === 0).length,
+          outOfStock: countOutOfStock(products),
           categories: categories.length,
           inventoryValue,
         });
@@ -71,16 +70,11 @@ export function Dashboard() {
       </div>
 
       {/* Inventory Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <StatsCard
           title="Total Productos"
           value={stats.totalProducts}
           description="Productos en inventario"
-        />
-        <StatsCard
-          title="Stock Bajo"
-          value={stats.lowStock}
-          description="Menos de 5 unidades"
         />
         <StatsCard
           title="Sin Stock"
@@ -153,13 +147,7 @@ export function Dashboard() {
                   <p className="text-sm text-muted-foreground">{product.category}</p>
                 </div>
                 <div className="text-right">
-                  <p className={`font-semibold ${
-                    product.quantity === 0 
-                      ? 'text-destructive' 
-                      : product.quantity < 5 
-                        ? 'text-yellow-600' 
-                        : 'text-green-600'
-                  }`}>
+                  <p className={`font-semibold ${getStockStatusColor(product.quantity)}`}>
                     {product.quantity} unidades
                   </p>
                   <p className="text-xs text-muted-foreground">

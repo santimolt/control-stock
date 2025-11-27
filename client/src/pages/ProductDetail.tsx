@@ -5,6 +5,7 @@ import { ProductForm } from '@/components/products/ProductForm';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import * as db from '@/lib/db';
+import { getStockStatusColor, getStockStatusLabel } from '@/lib/utils/stock-checks';
 
 export function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -103,24 +104,14 @@ export function ProductDetail() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Cantidad</p>
-              <p className={`text-3xl font-bold ${
-                product.quantity === 0 
-                  ? 'text-destructive' 
-                  : product.quantity < 5 
-                    ? 'text-yellow-600' 
-                    : 'text-green-600'
-              }`}>
+              <p className={`text-3xl font-bold ${getStockStatusColor(product.quantity)}`}>
                 {product.quantity}
               </p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Estado</p>
               <p className="text-lg font-semibold mt-1">
-                {product.quantity === 0 
-                  ? 'Sin Stock' 
-                  : product.quantity < 5 
-                    ? 'Stock Bajo' 
-                    : 'En Stock'}
+                {getStockStatusLabel(product.quantity)}
               </p>
             </div>
           </div>

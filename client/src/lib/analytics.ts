@@ -1,6 +1,7 @@
 import { getAllMovements, getMovementsByProduct } from './db/movements';
 import { getAllProducts } from './db';
 import type { Product } from '@/types/product';
+import { filterLowStock, filterOutOfStock, DEFAULT_LOW_STOCK_THRESHOLD } from './utils/stock-checks';
 
 // ============================================================================
 // Financial Summary
@@ -222,13 +223,13 @@ export async function getInventoryByCategory(): Promise<Map<string, {
 // Low Stock / Out of Stock
 // ============================================================================
 
-export async function getLowStockProducts(threshold: number = 5): Promise<Product[]> {
+export async function getLowStockProducts(threshold: number = DEFAULT_LOW_STOCK_THRESHOLD): Promise<Product[]> {
   const products = await getAllProducts();
-  return products.filter(p => p.quantity > 0 && p.quantity < threshold);
+  return filterLowStock(products, threshold);
 }
 
 export async function getOutOfStockProducts(): Promise<Product[]> {
   const products = await getAllProducts();
-  return products.filter(p => p.quantity === 0);
+  return filterOutOfStock(products);
 }
 

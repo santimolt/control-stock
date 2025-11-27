@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { getAllProducts } from '@/lib/db';
 import { formatCurrency } from '@/lib/utils/cn';
+import { isOutOfStock } from '@/lib/utils/stock-checks';
 
 interface MovementFormProps {
   open: boolean;
@@ -190,7 +191,7 @@ export function MovementForm({
     : null;
     
   const newAvgCost = selectedProduct && activeTab === 'production'
-    ? selectedProduct.quantity === 0
+    ? isOutOfStock(selectedProduct.quantity)
       ? unitCost
       : (selectedProduct.quantity * selectedProduct.averageCost + quantity * unitCost) / (selectedProduct.quantity + quantity)
     : null;
