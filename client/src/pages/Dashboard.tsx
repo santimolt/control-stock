@@ -1,0 +1,177 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { StatsCard } from '@/components/dashboard/StatsCard';
+import { Button } from '@/components/ui/button';
+import * as db from '@/lib/db';
+import type { Product } from '@/types/product';
+import { getFinancialSummary, getTotalInventoryValue } from '@/lib/analytics';
+import type { FinancialSummary } from '@/lib/analytics';
+import { formatCurrency } from '@/lib/utils/cn';
+
+export function Dashboard() {
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    lowStock: 0,
+    outOfStock: 0,
+    categories: 0,
+    inventoryValue: 0,
+  });
+  const [financialSummary, setFinancialSummary] = useState<FinancialSummary | null>(null);
+  const [recentProducts, setRecentProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const products = await db.getAllProducts();
+        const categories = await db.getAllCategories();
+        const inventoryValue = await getTotalInventoryValue();
+        const financial = await getFinancialSummary();
+        
+        setStats({
+          totalProducts: products.length,
+          lowStock: products.filter(p => p.quantity > 0 && p.quantity < 5).length,
+          outOfStock: products.filter(p => p.quantity === 0).length,
+          categories: categories.length,
+          inventoryValue,
+        });
+        
+        setFinancialSummary(financial);
+
+        // Get 5 most recently updated products
+        const recent = [...products]
+          .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+          .slice(0, 5);
+        setRecentProducts(recent);
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">Cargando...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <p className="text-muted-foreground">
+          Vista general de tu inventario
+        </p>
+      </div>
+
+      {/* Inventory Stats */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatsCard
+          title="Total Productos"
+          value={stats.totalProducts}
+          description="Productos en inventario"
+        />
+        <StatsCard
+          title="Stock Bajo"
+          value={stats.lowStock}
+          description="Menos de 5 unidades"
+        />
+        <StatsCard
+          title="Sin Stock"
+          value={stats.outOfStock}
+          description="Productos agotados"
+        />
+        <StatsCard
+          title="Valor Inventario"
+          value={formatCurrency(stats.inventoryValue)}
+          description="Basado en costo promedio"
+        />
+      </div>
+
+      {/* Financial Stats */}
+      {financialSummary && financialSummary.totalSales > 0 && (
+        <>
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Métricas Financieras</h3>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <StatsCard
+              title="Ingresos Totales"
+              value={formatCurrency(financialSummary.totalRevenue)}
+              description={`${financialSummary.totalSales} ventas`}
+            />
+            <StatsCard
+              title="Costos Totales"
+              value={formatCurrency(financialSummary.totalCosts)}
+              description={`${financialSummary.totalProductions} producciones`}
+            />
+            <StatsCard
+              title="Ganancia Neta"
+              value={formatCurrency(financialSummary.netProfit)}
+              description="Ingresos - Costos"
+            />
+            <StatsCard
+              title="Margen Promedio"
+              value={`${financialSummary.profitMargin.toFixed(1)}%`}
+              description="Rentabilidad general"
+            />
+          </div>
+        </>
+      )}
+
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-semibold">Productos Recientes</h3>
+          <Link to="/products">
+            <Button variant="outline">Ver Todos</Button>
+          </Link>
+        </div>
+
+        {recentProducts.length === 0 ? (
+          <div className="text-center py-12 border rounded-lg">
+            <p className="text-muted-foreground">No hay productos todavía</p>
+            <Link to="/products">
+              <Button className="mt-4">Agregar Primer Producto</Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="border rounded-lg divide-y">
+            {recentProducts.map((product) => (
+              <Link
+                key={product.id}
+                to={`/products/${product.id}`}
+                className="flex items-center justify-between p-4 hover:bg-accent transition-colors"
+              >
+                <div>
+                  <p className="font-medium">{product.name}</p>
+                  <p className="text-sm text-muted-foreground">{product.category}</p>
+                </div>
+                <div className="text-right">
+                  <p className={`font-semibold ${
+                    product.quantity === 0 
+                      ? 'text-destructive' 
+                      : product.quantity < 5 
+                        ? 'text-yellow-600' 
+                        : 'text-green-600'
+                  }`}>
+                    {product.quantity} unidades
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(product.updatedAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
