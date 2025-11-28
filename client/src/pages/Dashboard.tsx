@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,12 @@ import { getFinancialSummary, getTotalInventoryValue } from '@/lib/analytics';
 import type { FinancialSummary } from '@/lib/analytics';
 import { formatCurrency } from '@/lib/utils/cn';
 import { countOutOfStock, getStockStatusColor } from '@/lib/utils/stock-checks';
+import {
+  exportDatabase,
+  downloadBackupFile,
+  readBackupFile,
+  importDatabase,
+} from '@/lib/db/backup';
 
 export function Dashboard() {
   const [stats, setStats] = useState({
@@ -19,6 +25,9 @@ export function Dashboard() {
   const [financialSummary, setFinancialSummary] = useState<FinancialSummary | null>(null);
   const [recentProducts, setRecentProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -51,6 +60,56 @@ export function Dashboard() {
 
     loadData();
   }, []);
+
+  async function handleExportClick() {
+    try {
+      setExporting(true);
+      const backup = await exportDatabase();
+      downloadBackupFile(backup);
+      alert('Backup exportado correctamente.');
+    } catch (error) {
+      console.error('Error exporting backup:', error);
+      const message =
+        error instanceof Error ? error.message : 'Ocurrió un error al exportar el backup.';
+      alert(message);
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function handleImportFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const confirmed = window.confirm(
+      'Esta acción reemplazará TODOS los productos, movimientos y fotos actuales por los del archivo seleccionado. ¿Quieres continuar?',
+    );
+
+    if (!confirmed) {
+      event.target.value = '';
+      return;
+    }
+
+    try {
+      setImporting(true);
+      const backup = await readBackupFile(file);
+      await importDatabase(backup);
+      alert('Datos importados correctamente. La página se recargará para aplicar los cambios.');
+      window.location.reload();
+    } catch (error) {
+      console.error('Error importing backup:', error);
+      const message =
+        error instanceof Error ? error.message : 'Ocurrió un error al importar el backup.';
+      alert(message);
+    } finally {
+      setImporting(false);
+      event.target.value = '';
+    }
+  }
+
+  function handleImportClick() {
+    fileInputRef.current?.click();
+  }
 
   if (loading) {
     return (
@@ -158,6 +217,37 @@ export function Dashboard() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Data management */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-semibold">Configuración de datos</h3>
+        </div>
+        <div className="flex flex-wrap gap-4">
+          <Button onClick={handleExportClick} disabled={exporting || importing}>
+            {exporting ? 'Exportando...' : 'Exportar datos'}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleImportClick}
+            disabled={exporting || importing}
+          >
+            {importing ? 'Importando...' : 'Importar datos'}
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={handleImportFileChange}
+          />
+        </div>
+        <p className="text-xs text-muted-foreground max-w-xl">
+          Puedes exportar una copia de seguridad completa de tus productos, movimientos y fotos,
+          e importarla en otra instalación de la app. Al importar, los datos actuales se
+          reemplazarán por los del archivo seleccionado.
+        </p>
       </div>
     </div>
   );
