@@ -36,14 +36,14 @@ export function Dashboard() {
         const categories = await db.getAllCategories();
         const inventoryValue = await getTotalInventoryValue();
         const financial = await getFinancialSummary();
-        
+
         setStats({
           totalProducts: products.length,
           outOfStock: countOutOfStock(products),
           categories: categories.length,
           inventoryValue,
         });
-        
+
         setFinancialSummary(financial);
 
         // Get 5 most recently updated products
@@ -104,6 +104,23 @@ export function Dashboard() {
     } finally {
       setImporting(false);
       event.target.value = '';
+    }
+  }
+
+  async function handleDeleteAllData() {
+    const confirmed = window.confirm('Esta acción eliminará TODOS los productos, movimientos y fotos actuales. ¿Quieres continuar?');
+    if (!confirmed) return;
+    try {
+      await db.deleteAllData();
+      alert('Todos los datos han sido eliminados correctamente.');
+    } catch (error) {
+      console.error('Error deleting all data:', error);
+      const message =
+        error instanceof Error ? error.message : 'Ocurrió un error al eliminar los datos.';
+      alert(message);
+    } finally {
+      setLoading(true);
+      window.location.reload();
     }
   }
 
@@ -242,6 +259,7 @@ export function Dashboard() {
             className="hidden"
             onChange={handleImportFileChange}
           />
+          <Button variant="destructive" onClick={handleDeleteAllData}>Eliminar todos los datos</Button>
         </div>
         <p className="text-xs text-muted-foreground max-w-xl">
           Puedes exportar una copia de seguridad completa de tus productos, movimientos y fotos,

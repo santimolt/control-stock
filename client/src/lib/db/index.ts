@@ -206,3 +206,13 @@ export async function clearAllProducts(): Promise<void> {
   await db.clear('products');
 }
 
+
+/**
+ * Delete all data from the database
+ */
+export async function deleteAllData(): Promise<void> {
+  const db = await getDB();
+  await db.clear('products');
+  await db.clear('movements');
+  await db.clear('photos');
+}
